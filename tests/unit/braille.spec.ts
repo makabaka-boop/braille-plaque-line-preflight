@@ -5,7 +5,8 @@ import {
   NUMBER_SIGN,
   PUNCTUATION_CELLS,
   VISUAL_ORDER,
-  encodePhrase
+  encodePhrase,
+  encodePhraseWithSources
 } from '../../src/lib/braille';
 
 describe('固定编码表', () => {
@@ -130,5 +131,37 @@ describe('encodePhrase 非法字符边界', () => {
     expect(result.cells).toEqual([]);
     expect(result.errors).toHaveLength(1);
     expect(result.errors[0].kind).toBe('empty-text');
+  });
+});
+
+describe('encodePhraseWithSources 带来源索引的编码', () => {
+  it('每个方都记录来源字符下标（0 起）', () => {
+    const result = encodePhraseWithSources('一，二');
+    expect(result.errors).toEqual([]);
+    expect(result.cells).toEqual([
+      { cell: '1', sourceIndex: 0 },
+      { cell: '2', sourceIndex: 1 },
+      { cell: '12', sourceIndex: 2 }
+    ]);
+  });
+
+  it('数字符归属于触发它的首个数字字符，空格来源为空方', () => {
+    const result = encodePhraseWithSources('1 2');
+    expect(result.cells).toEqual([
+      { cell: '3456', sourceIndex: 0 }, // 数字符归属于第 1 个字符“1”
+      { cell: '1', sourceIndex: 0 },
+      { cell: '', sourceIndex: 1 }, // 空方来源于空格
+      { cell: '3456', sourceIndex: 2 }, // 第二段数字的数字符归属于“2”
+      { cell: '12', sourceIndex: 2 }
+    ]);
+  });
+
+  it('与 encodePhrase 的方序列与错误完全一致，仅多出来源下标', () => {
+    for (const text of ['12，三。', '1,2', '', '   ']) {
+      const sourced = encodePhraseWithSources(text);
+      const plain = encodePhrase(text);
+      expect(sourced.cells.map((s) => s.cell)).toEqual(plain.cells);
+      expect(sourced.errors).toEqual(plain.errors);
+    }
   });
 });

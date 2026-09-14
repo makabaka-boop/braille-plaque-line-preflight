@@ -95,18 +95,37 @@ export interface EncodeResult {
 }
 
 /**
- * 将制版员键入的短句逐字符编码为点号方。
+ * 带来源索引的一方：记录该方由短句中第几个字符（0 起）产生。
+ * 双稿核对按此把每个差异回溯到原字符位置。
+ */
+export interface SourcedCell {
+  cell: BrailleCell;
+  /**
+   * 来源字符在短句中的下标（0 起）。
+   * 数字符 3456 本身不对应输入字符，归属于触发它的首个数字字符。
+   */
+  sourceIndex: number;
+}
+
+export interface SourcedEncodeResult {
+  cells: SourcedCell[];
+  errors: EncodeError[];
+}
+
+/**
+ * 将制版员键入的短句逐字符编码为点号方，并记录每一方的来源字符下标。
  *
  * 允许的字符：中文数字“一二三四五六七八九零”、半角数字 0-9、
  * 半角空格及全角逗号“，”、全角句号“。”、半角连字符“-”。
  *
- * 半角数字按最长连续段落处理：每段连续数字前额外插入一方数字符 3456；
- * 数字串遇到任何非数字字符（中文数字、标点、空格等）立即结束。
+ * 半角数字按最长连续段落处理：每段连续数字前额外插入一方数字符 3456，
+ * 该方归属于触发它的首个数字字符；数字串遇到任何非数字字符
+ * （中文数字、标点、空格等）立即结束。
  *
  * 出现非法字符时照常收集错误但不生成对应方；调用方必须在 errors 为空时
  * 才允许使用 cells，保证“非法字符阻止全部输出”。
  */
-export function encodePhrase(text: string): EncodeResult {
+export function encodePhraseWithSources(text: string): SourcedEncodeResult {
   const errors: EncodeError[] = [];
 
   if (text.length === 0) {
@@ -119,7 +138,7 @@ export function encodePhrase(text: string): EncodeResult {
     return { cells: [], errors };
   }
 
-  const cells: BrailleCell[] = [];
+  const cells: SourcedCell[] = [];
   const chars = Array.from(text);
   let inNumber = false;
 
@@ -128,11 +147,11 @@ export function encodePhrase(text: string): EncodeResult {
 
     if (isAsciiDigit(ch)) {
       if (!inNumber) {
-        // 每段连续数字前插入数字符（3456）。
-        cells.push(NUMBER_SIGN);
+        // 每段连续数字前插入数字符（3456），归属于触发它的首个数字字符。
+        cells.push({ cell: NUMBER_SIGN, sourceIndex: index });
         inNumber = true;
       }
-      cells.push(ASCII_DIGIT_CELLS[Number(ch)]);
+      cells.push({ cell: ASCII_DIGIT_CELLS[Number(ch)], sourceIndex: index });
       continue;
     }
 
@@ -141,13 +160,13 @@ export function encodePhrase(text: string): EncodeResult {
 
     const chineseCell = CHINESE_DIGIT_MAP.get(ch);
     if (chineseCell !== undefined) {
-      cells.push(chineseCell);
+      cells.push({ cell: chineseCell, sourceIndex: index });
       continue;
     }
 
     const punctuationCell = PUNCTUATION_CELLS.get(ch);
     if (punctuationCell !== undefined) {
-      cells.push(punctuationCell);
+      cells.push({ cell: punctuationCell, sourceIndex: index });
       continue;
     }
 
@@ -163,4 +182,13 @@ export function encodePhrase(text: string): EncodeResult {
   }
 
   return { cells, errors };
+}
+
+/**
+ * 不带来源信息的编码结果，供单稿预检等既有调用继续使用。
+ * 与 encodePhraseWithSources 共用同一编码过程，仅剥离去源下标。
+ */
+export function encodePhrase(text: string): EncodeResult {
+  const { cells, errors } = encodePhraseWithSources(text);
+  return { cells: cells.map((sourced) => sourced.cell), errors };
 }

@@ -9,6 +9,8 @@
   --accent-soft: #dcecff;
   --danger: #b42318;
   --danger-soft: #fdeceb;
+  --ok: #067647;
+  --ok-soft: #e7f6ee;
   --raised: #101828;
   font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', system-ui, sans-serif;
 }
@@ -218,4 +220,181 @@ input:focus {
 
 .placeholder {
   color: var(--muted);
+}
+
+/* ---- 模式切换 ---- */
+
+.mode-switch {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.mode-btn {
+  font: inherit;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  cursor: pointer;
+}
+
+.mode-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ---- 双稿核对输入 ---- */
+
+.draft-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.draft-row .field {
+  flex: 1 1 300px;
+}
+
+.draft-errors {
+  margin: 2px 0 0;
+  padding: 8px 12px 8px 28px;
+  border: 1px solid #f0a39c;
+  border-radius: 8px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.compare-btn {
+  font: inherit;
+  font-weight: 700;
+  margin-top: 14px;
+  padding: 10px 28px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.compare-btn:focus-visible {
+  outline: 2px solid var(--accent-soft);
+  outline-offset: 2px;
+}
+
+/* ---- 核对结论 ---- */
+
+.compare-identical {
+  border-color: #9ad5b5;
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.compare-identical h2,
+.compare-diff h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.compare-identical p {
+  margin: 0;
+}
+
+.diff-summary {
+  margin: 0 0 12px;
+  color: var(--ink);
+}
+
+/* ---- 逐项差异表 ---- */
+
+.diff-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.diff-table th {
+  text-align: left;
+  font-size: 13px;
+  color: var(--muted);
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.diff-table td {
+  padding: 8px 10px;
+  border-bottom: 1px dashed var(--line);
+  vertical-align: middle;
+}
+
+.diff-entry.op-equal {
+  color: var(--muted);
+}
+
+.diff-entry.is-first-diff {
+  background: var(--danger-soft);
+}
+
+.diff-no {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  width: 36px;
+}
+
+.diff-op {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #eef2f7;
+  color: var(--muted);
+}
+
+.diff-op.op-insert {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.diff-op.op-delete {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.diff-op.op-replace {
+  background: #fdf0d5;
+  color: #8a5a00;
+}
+
+.first-diff-tag {
+  display: inline-block;
+  margin-left: 8px;
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--danger);
+}
+
+.diff-side {
+  min-width: 160px;
+}
+
+.diff-side .cell {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.source {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  vertical-align: middle;
+}
+
+.no-cell {
+  color: #93a0b2;
 }
