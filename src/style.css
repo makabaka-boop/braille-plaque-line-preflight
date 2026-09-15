@@ -766,3 +766,126 @@ input[type='number'].input-invalid:focus,
   font-size: 14px;
   line-height: 1.6;
 }
+
+/* ---- 六键抄录 ---- */
+
+.transcription-note {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.key-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.key-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.key-legend kbd {
+  font: inherit;
+  font-weight: 700;
+  padding: 2px 9px;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.capture-zone {
+  border: 2px dashed var(--line);
+  border-radius: 10px;
+  padding: 24px 18px;
+  text-align: center;
+  cursor: pointer;
+  background: #fbfcfe;
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.capture-zone:hover {
+  border-color: var(--accent);
+}
+
+.capture-zone:focus {
+  outline: 2px solid var(--accent-soft);
+  outline-offset: 2px;
+  border-color: var(--accent);
+}
+
+.capture-zone.collecting {
+  border-color: var(--accent);
+  border-style: solid;
+  background: var(--accent-soft);
+}
+
+.capture-hint {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.capture-live {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.transcription-notice {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 14px;
+}
+
+.transcription-actions {
+  margin-top: 12px;
+}
+
+.transcription-result h2 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.transcript-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.transcript-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px dashed var(--line);
+}
+
+.transcript-item.is-pending {
+  opacity: 0.65;
+}
+
+.transcript-no {
+  flex: 0 0 auto;
+  min-width: 96px;
+  padding-top: 26px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.transcription-result .total {
+  margin: 12px 0 0;
+}

@@ -7,8 +7,9 @@ import { compareDrafts, type CompareResult, type DiffOp } from './lib/compare';
 import CellView from './components/CellView.vue';
 import CalibrationWorkspace from './components/CalibrationWorkspace.vue';
 import TrainingWorkspace from './components/TrainingWorkspace.vue';
+import TranscriptionWorkspace from './components/TranscriptionWorkspace.vue';
 
-const mode = ref<'single' | 'compare' | 'calibration' | 'training'>('single');
+const mode = ref<'single' | 'compare' | 'calibration' | 'training' | 'transcription'>('single');
 
 // ---- 单稿预检（既有行为，保持不变） ----
 const phrase = ref('');
@@ -109,6 +110,17 @@ function runCompare() {
         @click="mode = 'training'"
       >
         识读训练
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="mode-btn"
+        :class="{ active: mode === 'transcription' }"
+        :aria-selected="mode === 'transcription'"
+        data-testid="mode-transcription"
+        @click="mode = 'transcription'"
+      >
+        六键抄录
       </button>
     </div>
 
@@ -275,8 +287,12 @@ function runCompare() {
       <CalibrationWorkspace />
     </template>
 
-    <template v-else>
+    <template v-else-if="mode === 'training'">
       <TrainingWorkspace />
+    </template>
+
+    <template v-else>
+      <TranscriptionWorkspace />
     </template>
   </main>
 </template>
