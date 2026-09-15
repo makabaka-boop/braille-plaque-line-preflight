@@ -6,8 +6,9 @@ import { MAX_WIDTH, MIN_WIDTH, validateWidth } from './lib/layout';
 import { compareDrafts, type CompareResult, type DiffOp } from './lib/compare';
 import CellView from './components/CellView.vue';
 import CalibrationWorkspace from './components/CalibrationWorkspace.vue';
+import TrainingWorkspace from './components/TrainingWorkspace.vue';
 
-const mode = ref<'single' | 'compare' | 'calibration'>('single');
+const mode = ref<'single' | 'compare' | 'calibration' | 'training'>('single');
 
 // ---- 单稿预检（既有行为，保持不变） ----
 const phrase = ref('');
@@ -97,6 +98,17 @@ function runCompare() {
         @click="mode = 'compare'"
       >
         双稿核对
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="mode-btn"
+        :class="{ active: mode === 'training' }"
+        :aria-selected="mode === 'training'"
+        data-testid="mode-training"
+        @click="mode = 'training'"
+      >
+        识读训练
       </button>
     </div>
 
@@ -259,8 +271,12 @@ function runCompare() {
       </section>
     </template>
 
-    <template v-else>
+    <template v-else-if="mode === 'calibration'">
       <CalibrationWorkspace />
+    </template>
+
+    <template v-else>
+      <TrainingWorkspace />
     </template>
   </main>
 </template>
