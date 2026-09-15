@@ -125,6 +125,68 @@ test.describe('制版点位逐方核对', () => {
   });
 });
 
+test.describe('单稿排版与输入状态', () => {
+  test('行宽 20 且内容足量时，一个逻辑行在预览中保持单排', async ({ page }) => {
+    // 23 个中文数字 -> 23 方：第 1 行 20 方，第 2 行 3 方
+    await page.getByTestId('phrase-input').fill('一二三四五六七八九零一二三四五六七八九零一二三');
+    await page.getByTestId('width-input').fill('20');
+
+    const lines = page.getByTestId('plate-line');
+    await expect(lines).toHaveCount(2);
+
+    const firstLineCells = lines.first().locator('.cell');
+    await expect(firstLineCells).toHaveCount(20);
+
+    // 同一逻辑行的所有方必须排在同一视觉排（顶端对齐一致，不发生折行）
+    const tops = await firstLineCells.evaluateAll((elements) =>
+      elements.map((element) => Math.round(element.getBoundingClientRect().top))
+    );
+    expect(new Set(tops).size).toBe(1);
+  });
+
+  test('快速行宽按钮以 aria-pressed 暴露当前选中项', async ({ page }) => {
+    const group = page.getByRole('group', { name: '快速选择每行方数' });
+    const choice = (label: string) => group.getByRole('button', { name: label });
+
+    // 默认行宽 12：仅对应按钮处于按下状态
+    await expect(choice('每行 12 方')).toHaveAttribute('aria-pressed', 'true');
+    await expect(choice('每行 20 方')).toHaveAttribute('aria-pressed', 'false');
+
+    await choice('每行 20 方').click();
+    await expect(page.getByTestId('width-input')).toHaveValue('20');
+    await expect(choice('每行 20 方')).toHaveAttribute('aria-pressed', 'true');
+    await expect(choice('每行 12 方')).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test('非法字符阻止预览时，短句输入框获得错误状态并关联警告', async ({ page }) => {
+    const input = page.getByTestId('phrase-input');
+
+    await input.fill('12，三。');
+    await expect(input).toHaveAttribute('aria-invalid', 'false');
+    await expect(input).not.toHaveAttribute('aria-describedby', /.+/);
+
+    await input.fill('12楼');
+    await expect(page.getByTestId('errors')).toBeVisible();
+    await expect(input).toHaveAttribute('aria-invalid', 'true');
+    await expect(input).toHaveAttribute('aria-describedby', 'single-errors');
+    await expect(page.locator('#single-errors')).toContainText('楼');
+  });
+
+  test('非法行宽阻止预览时，行宽输入框获得错误状态并关联警告', async ({ page }) => {
+    await page.getByTestId('phrase-input').fill('一二三');
+    const width = page.getByTestId('width-input');
+
+    await width.fill('3');
+    await expect(width).toHaveAttribute('aria-invalid', 'true');
+    await expect(width).toHaveAttribute('aria-describedby', 'single-errors');
+    // 短句本身合法，短句输入框不应被标错
+    await expect(page.getByTestId('phrase-input')).toHaveAttribute('aria-invalid', 'false');
+
+    await width.fill('12');
+    await expect(width).toHaveAttribute('aria-invalid', 'false');
+  });
+});
+
 test.describe('纯浏览器约束', () => {
   test('不请求任何在线转换接口', async ({ page }) => {
     const externalRequests: string[] = [];

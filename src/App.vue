@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { planPlate } from './lib/precheck';
-import { MAX_WIDTH, MIN_WIDTH } from './lib/layout';
+import { encodePhrase } from './lib/braille';
+import { MAX_WIDTH, MIN_WIDTH, validateWidth } from './lib/layout';
 import { compareDrafts, type CompareResult, type DiffOp } from './lib/compare';
 import CellView from './components/CellView.vue';
 
@@ -14,6 +15,10 @@ const widthChoices = [4, 8, 12, 16, 20];
 
 const plan = computed(() => planPlate(phrase.value, widthInput.value));
 const hasOutput = computed(() => plan.value.errors.length === 0 && plan.value.totalCells > 0);
+
+// 逐字段定位阻断原因，让对应输入框获得错误状态并与警告文案关联。
+const phraseInvalid = computed(() => encodePhrase(phrase.value).errors.length > 0);
+const widthInvalid = computed(() => validateWidth(widthInput.value) !== null);
 
 // ---- 双稿核对：粘贴两稿后点击“发起核对”，结果为一次性差异记录 ----
 const baseDraft = ref('');
@@ -93,6 +98,9 @@ function runCompare() {
             spellcheck="false"
             placeholder="允许：一二三四五六七八九零、半角数字、空格、“，”“。”“-”"
             data-testid="phrase-input"
+            :class="{ 'input-invalid': phraseInvalid }"
+            :aria-invalid="phraseInvalid"
+            :aria-describedby="phraseInvalid ? 'single-errors' : undefined"
           ></textarea>
         </label>
 
@@ -107,6 +115,9 @@ function runCompare() {
               step="1"
               inputmode="numeric"
               data-testid="width-input"
+              :class="{ 'input-invalid': widthInvalid }"
+              :aria-invalid="widthInvalid"
+              :aria-describedby="widthInvalid ? 'single-errors' : undefined"
             />
           </label>
           <div class="width-quick" role="group" aria-label="快速选择每行方数">
@@ -116,6 +127,8 @@ function runCompare() {
               type="button"
               class="quick-btn"
               :class="{ active: widthInput === String(choice) }"
+              :aria-pressed="widthInput === String(choice)"
+              :aria-label="`每行 ${choice} 方`"
               @click="widthInput = String(choice)"
             >
               {{ choice }}
@@ -124,7 +137,7 @@ function runCompare() {
         </div>
       </section>
 
-      <section v-if="plan.errors.length > 0" class="panel errors" role="alert" data-testid="errors">
+      <section v-if="plan.errors.length > 0" id="single-errors" class="panel errors" role="alert" data-testid="errors">
         <h2>已阻止全部输出</h2>
         <ul>
           <li v-for="(error, i) in plan.errors" :key="i">{{ error }}</li>

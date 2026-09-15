@@ -80,6 +80,19 @@ input:focus {
   border-color: var(--accent);
 }
 
+/* 输入非法被阻止时，对应输入框同步给出错误状态（与 aria-invalid 一致） */
+textarea.input-invalid,
+input[type='number'].input-invalid {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+}
+
+textarea.input-invalid:focus,
+input[type='number'].input-invalid:focus {
+  outline-color: #f0a39c;
+  border-color: var(--danger);
+}
+
 .field-row {
   display: flex;
   gap: 20px;
@@ -154,11 +167,16 @@ input:focus {
 
 .cells {
   display: flex;
-  flex-wrap: wrap;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
   gap: 10px;
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+.cell-item {
+  flex: 0 0 auto;
 }
 
 .cell {
