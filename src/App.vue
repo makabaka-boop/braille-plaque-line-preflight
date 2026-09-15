@@ -5,8 +5,9 @@ import { encodePhrase } from './lib/braille';
 import { MAX_WIDTH, MIN_WIDTH, validateWidth } from './lib/layout';
 import { compareDrafts, type CompareResult, type DiffOp } from './lib/compare';
 import CellView from './components/CellView.vue';
+import CalibrationWorkspace from './components/CalibrationWorkspace.vue';
 
-const mode = ref<'single' | 'compare'>('single');
+const mode = ref<'single' | 'compare' | 'calibration'>('single');
 
 // ---- 单稿预检（既有行为，保持不变） ----
 const phrase = ref('');
@@ -74,6 +75,17 @@ function runCompare() {
         @click="mode = 'single'"
       >
         单稿预检
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="mode-btn"
+        :class="{ active: mode === 'calibration' }"
+        :aria-selected="mode === 'calibration'"
+        data-testid="mode-calibration"
+        @click="mode = 'calibration'"
+      >
+        试压校准
       </button>
       <button
         type="button"
@@ -158,7 +170,7 @@ function runCompare() {
       </section>
     </template>
 
-    <template v-else>
+    <template v-else-if="mode === 'compare'">
       <section class="panel compare-input" aria-label="双稿核对输入">
         <div class="draft-row">
           <label class="field">
@@ -245,6 +257,10 @@ function runCompare() {
           </tbody>
         </table>
       </section>
+    </template>
+
+    <template v-else>
+      <CalibrationWorkspace />
     </template>
   </main>
 </template>
